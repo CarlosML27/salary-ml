@@ -1,4 +1,3 @@
-import csv
 import argparse
 import pandas as pd
 import numpy as np
@@ -24,7 +23,9 @@ def get_split_ratio(args):
 	return args.ratio
 
 def get_data(filename):
-	data = pd.read_csv(filename, sep=",", header=0)
+	data = pd.read_csv(filename, sep=",", header=0, na_values=["?"])
+	data.replace(["NaN"], np.nan, inplace = True)
+	data = data.apply(lambda x:x.fillna(x.value_counts().index[0]))
 	dropcolumns = ['education']
 	data.drop(dropcolumns, inplace=True, axis=1)
 	numericlabels = ['age', 'final_weight', 'education_num', 'capital_gain', 'capital_loss', 'hours_per_week']
@@ -45,7 +46,7 @@ def main():
 	print(split_ratio)
 	filename = DEFAULT_FILENAME
 	data = get_data(filename)
-	print_rows(data[:10])
+	print_rows(data)
 
 if __name__ == '__main__':
 	main()
