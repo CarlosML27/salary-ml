@@ -3,6 +3,8 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
+from sklearn import tree
 
 DEFAULT_SPLIT_RATIO = 0.66
 DEFAULT_FILENAME = "../data/salary.csv"
@@ -63,12 +65,35 @@ def split_train_test_data(data, training_ratio):
 	X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=1-training_ratio)
 	return X_train, X_test, Y_train, Y_test
 
+def create_dtc(X, Y):
+	decision_tree_classifier = tree.DecisionTreeClassifier()
+	decision_tree_classifier = decision_tree_classifier.fit(X, Y)
+	return decision_tree_classifier
+
+def get_accuracy(classifier, X, Y):
+	accuracy = classifier.score(X, Y)
+	return accuracy
+
+def get_prediction(classifier, X):
+	prediction = classifier.predict(X)
+	return prediction
+
+def get_confusion_matrix(prediction, Y):
+	confusion_matrix = confusion_matrix(prediction, Y)
+	return confusion_matrix
+
 def main():
 	args = retrieve_args()
 	split_ratio = get_split_ratio(args)
 	filename = get_filename()
 	data = get_data(filename)
 	X_train, X_test, Y_train, Y_test = split_train_test_data(data, split_ratio)
+	decision_tree_classifier = create_dtc(X_train, Y_train)
+	dtc_accuracy = get_accuracy(decision_tree_classifier, X_test, Y_test) 
+	print("Accuracy: {}%".format(round(dtc_accuracy*100, 4)))
+	dtc_prediction = get_prediction(decision_tree_classifier, X_test)
+	dtc_confusion_matrix = confusion_matrix(dtc_prediction, Y_test)
+	print(dtc_confusion_matrix)
 
 if __name__ == '__main__':
 	main()
